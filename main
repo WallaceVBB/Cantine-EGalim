@@ -1,0 +1,10 @@
+from services import traiter_donnees_fournisseurs
+from app import Base_GUI
+
+def main():
+    traitement = traiter_donnees_fournisseurs()
+    app = Application(traitement)
+    app.mainloop()
+
+if __name__ == "__main__":
+    main()
