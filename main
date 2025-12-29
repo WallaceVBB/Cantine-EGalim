@@ -1,9 +1,9 @@
-from services import traiter_donnees_fournisseurs
-from app import Base_GUI
+from app import Application
+
 
 def main():
-    traitement = traiter_donnees_fournisseurs()
-    app = Application(traitement)
+    """Fonction principale pour lancer l'application."""
+    app = Application()
     app.mainloop()
 
 if __name__ == "__main__":
