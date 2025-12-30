@@ -1,4 +1,4 @@
-# Cantine-EGalim
+# Cantine-Numerique
 
 ## Description
 Ce projet est un logiciel de traitement de données d’achats alimentaires destiné aux cantines collectives.
