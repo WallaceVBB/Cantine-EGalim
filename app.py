@@ -3,7 +3,7 @@
 ### Bibliothèques
 import sys
 import os
-from PySide6.QtCore import QThread
+from PySide6.QtCore import QObject, QThread
 from PySide6.QtWidgets import QApplication
 from navigation.n_traitement import TraitementNavigation
 from navigation.n_extracteur_factures import FactureNavigation
@@ -12,7 +12,7 @@ from services import DataService
 from utils import console, copier_fichier_ressource_vers_utilisateur,  _est_empaquete
 from maj_logiciel import MajWorker 
 
-class Application:
+class Application (QObject):
     def __init__(self):
         # Création de l'application Qt
         self.app = QApplication(sys.argv)
@@ -159,6 +159,10 @@ class Application:
         self._thread_maj.finished.connect(self._thread_maj.deleteLater)  
   
         self._thread_maj.start()  
+
+    def _on_maj_demarrage_download_fini(self, chemin):
+        from maj_logiciel import MajGestion
+        MajGestion.appliquer_maj(chemin)
   
     def _proposer_maj_demarrage(self, info):  
         from maj_logiciel import MajGestion
@@ -170,6 +174,7 @@ class Application:
             QMessageBox.Yes | QMessageBox.No,  
         )  
         if rep != QMessageBox.Yes:
+            self._thread_maj.quit()
             return
 
         # télécharger dans un thread pour ne pas geler l'UI  
@@ -177,7 +182,7 @@ class Application:
         self._worker_dl = MajWorker()  
         self._worker_dl.moveToThread(self._thread_dl)  
         self._thread_dl.started.connect(lambda: self._worker_dl.telecharger(info))  
-        self._worker_dl.termine_download.connect(MajGestion.appliquer_maj)  
+        self._worker_dl.termine_download.connect(self._on_maj_demarrage_download_fini)  
         self._worker_dl.termine_download.connect(self._thread_dl.quit)  
         self._worker_dl.erreur.connect(self._thread_dl.quit)  
         self._thread_dl.start()

@@ -98,22 +98,24 @@ class MajGestion ():
         }  
     
     @staticmethod
-    def telecharger_asset(url, nom_fichier, callback_progression=None):  
-        """Télécharge l'asset dans USER_APP_DIR. Retourne le chemin local.""" 
-        import requests  
- 
-        destination = os.path.join(USER_APP_DIR, nom_fichier)  
-        with requests.get(url, stream=True, timeout=30) as r:  
-            r.raise_for_status()  
-            total = int(r.headers.get("content-length", 0))  
-            telecharge = 0  
-            with open(destination, "wb") as f:  
-                for chunk in r.iter_content(chunk_size=8192):  
-                    f.write(chunk)  
-                    telecharge += len(chunk)  
-                    if callback_progression and total:  
-                        callback_progression(int(telecharge * 100 / total))  
-        return destination  
+    def telecharger_asset(url, nom_fichier, callback_progression=None, cancel_check=None):
+        """Télécharge l'asset dans USER_APP_DIR. Retourne le chemin local."""
+        import requests
+
+        destination = os.path.join(USER_APP_DIR, nom_fichier)
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            total = int(r.headers.get("content-length", 0))
+            telecharge = 0
+            with open(destination, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if cancel_check and cancel_check():
+                        raise InterruptedError("Téléchargement annulé par l'utilisateur")
+                    f.write(chunk)
+                    telecharge += len(chunk)
+                    if callback_progression and total:
+                        callback_progression(int(telecharge * 100 / total))
+        return destination
     
     @staticmethod
     def appliquer_maj(chemin_installeur):

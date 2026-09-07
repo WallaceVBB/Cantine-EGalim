@@ -464,6 +464,7 @@ class ParametresNavigation(QObject):
             QMessageBox.Yes | QMessageBox.No,
         )
         if rep != QMessageBox.Yes:
+            self._thread.quit()
             return
 
         self._progress = QProgressDialog("Téléchargement...", "Annuler", 0, 100, self.page)
