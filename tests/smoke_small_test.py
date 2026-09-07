@@ -17,6 +17,8 @@ import sys
 import tempfile
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 RACINE_PROJET = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if RACINE_PROJET not in sys.path:
     sys.path.insert(0, RACINE_PROJET)
@@ -86,8 +88,12 @@ def test_imports():
         "data_processing n'expose plus ImportationDonnees (tkinter)",
     )
     verifier(
-        set(n_extracteur.EXTRACTEURS) == {"generique", "jardimed"},
-        "les extracteurs sont importés normalement (sans importlib)",
+        n_extracteur.FactureWorker._load_extractor_module(None, "generique") is extracteur_generique,
+        "'generique' est résolu vers extracteur_generique (sans importlib)",
+    )
+    verifier(
+        n_extracteur.FactureWorker._load_extractor_module(None, "jardimed") is extracteur_jardimed,
+        "'jardimed' est résolu vers extracteur_jardimed (sans importlib)",
     )
     verifier(
         not any(hasattr(services, nom) and callable(getattr(services, nom)) and not isinstance(getattr(services, nom), type)
@@ -122,13 +128,14 @@ def test_sources_propres():
     verifier("sqlite3" not in contenu, "data_processing.py ne contient plus de SQL brut")
     verifier("INSERT INTO" not in contenu.upper(), "data_processing.py ne contient plus d'INSERT SQL")
 
+@pytest.fixture
+def data_service():
+    ds = services.DataService()
+    yield ds
+    ds.fermer()
 
-def test_schema_produits():
+def test_schema_produits(data_service):
     etape(3, "Schéma de la table produits créé par DataService")
-    # Comme dans full_test.py : DataService() sans argument, le chemin de la base
-    # est résolu via EPIDATA_USER_DIR par utils.py. On ne présume plus ici d'une
-    # structure de sous-dossiers codée en dur (c'était la source de désynchro).
-    data_service = services.DataService()
     verifier(data_service.conn is not None, f"base de produits ouverte : {data_service.bd_pt}")
 
     curseur = data_service.conn.cursor()
@@ -140,14 +147,12 @@ def test_schema_produits():
     for colonne in services.COLONNES_PRODUITS:
         verifier(colonne in colonnes, f"la colonne {colonne} existe dans le schéma")
 
-    # La migration ad-hoc ne doit rien avoir à faire sur une base neuve.
     data_service.migrer_bd_si_necessaire()
     curseur.execute("PRAGMA table_info(produits)")
     verifier(
         [ligne[1] for ligne in curseur.fetchall()] == colonnes,
         "aucune migration ad-hoc n'est nécessaire sur une base neuve",
     )
-    return data_service
 
 
 def test_cycle_persistance(data_service):
@@ -232,7 +237,7 @@ def test_verifier_maj_comportement():
         {"name": f"EpiData-Setup{ext_attendue}", "browser_download_url": "https://x/exe", "size": 42},
         {"name": "readme.txt", "browser_download_url": "https://x/readme.txt", "size": 1},
     ]
-    with patch("maj_logiciel.requests.get", return_value=_fausse_reponse_github("v99.0.0", assets)):
+    with patch("requests.get", return_value=_fausse_reponse_github("v99.0.0", assets)):
         info = MajGestion.verifier_maj()
     verifier(info is not None, "verifier_maj détecte une version strictement supérieure")
     verifier(info["version"] == "99.0.0", "le préfixe 'v' est bien retiré du numéro de version")
@@ -240,19 +245,19 @@ def test_verifier_maj_comportement():
     verifier(info["url"] == "https://x/exe", "l'URL de téléchargement retournée est celle du bon asset")
 
     # Cas 2 : version distante identique -> déjà à jour
-    with patch("maj_logiciel.requests.get", return_value=_fausse_reponse_github(f"v{utils.VERSION}", assets)):
+    with patch("requests.get", return_value=_fausse_reponse_github(f"v{utils.VERSION}", assets)):
         info_egal = MajGestion.verifier_maj()
     verifier(info_egal is None, "verifier_maj retourne None si la version distante == version locale")
 
     # Cas 3 : version distante inférieure -> déjà à jour
-    with patch("maj_logiciel.requests.get", return_value=_fausse_reponse_github("v0.0.1", assets)):
+    with patch("requests.get", return_value=_fausse_reponse_github("v0.0.1", assets)):
         info_inferieur = MajGestion.verifier_maj()
     verifier(info_inferieur is None, "verifier_maj retourne None si la version distante < version locale")
 
     # Cas 4 : aucun asset ne correspond à l'extension de l'OS -> doit lever une erreur claire
     assets_sans_correspondance = [{"name": "readme.txt", "browser_download_url": "https://x/r.txt", "size": 1}]
     exception_levee = False
-    with patch("maj_logiciel.requests.get", return_value=_fausse_reponse_github("v99.0.0", assets_sans_correspondance)):
+    with patch("requests.get", return_value=_fausse_reponse_github("v99.0.0", assets_sans_correspondance)):
         try:
             MajGestion.verifier_maj()
         except RuntimeError:
@@ -277,7 +282,7 @@ def test_telecharger_asset_comportement():
     reponse.__exit__ = MagicMock(return_value=False)
 
     progressions = []
-    with patch("maj_logiciel.requests.get", return_value=reponse):
+    with patch("requests.get", return_value=reponse):
         chemin = MajGestion.telecharger_asset(
             "https://x/fake-installer.exe",
             "fake-installer.exe",
