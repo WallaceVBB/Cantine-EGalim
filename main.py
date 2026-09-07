@@ -1,5 +1,6 @@
 from app import Application
 
+
 def main():
     """Fonction principale pour lancer l'application."""
     app = Application()

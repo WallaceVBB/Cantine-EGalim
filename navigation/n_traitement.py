@@ -4,9 +4,9 @@
 from pathlib import Path
 
 import pandas as pd
-from PySide6.QtCore import QThread, Signal, Qt, QSortFilterProxyModel
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtWidgets import (QFileDialog, QMessageBox, QSizePolicy, QStyledItemDelegate)
+from PySide6.QtCore import QSortFilterProxyModel, Qt, QThread, Signal
+from PySide6.QtGui import QStandardItem, QStandardItemModel
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QSizePolicy, QStyledItemDelegate
 
 from services import DataService
 from utils import BD_PT, console
@@ -254,7 +254,7 @@ class TraitementWorker(QThread):
             console.print(f"[red]Erreur lors du traitement du fichier : {e}")
             result['success'] = False
             result['message'] = str(e)
-            self.progress_updated.emit(100, f"Erreur: {str(e)}")
+            self.progress_updated.emit(100, f"Erreur: {e!s}")
 
         self.finished.emit(result['success'], result['message'], imported_rows)
 
@@ -340,6 +340,7 @@ class TraitementNavigation:
             if data_service and data_service.csv_fournisseurs is not None:
                 # Charger depuis categories.csv
                 import os
+
                 from utils import ressource_path
                 csv_categories = ressource_path(os.path.join("parametres", "categories.csv"))
                 if os.path.exists(csv_categories):
@@ -512,6 +513,7 @@ class TraitementNavigation:
         jamais construire des centaines de milliers de QStandardItem.
         """
         from math import ceil
+
         from PySide6.QtWidgets import QHeaderView
 
         results_page = self.pages.get('traitement_resultats')

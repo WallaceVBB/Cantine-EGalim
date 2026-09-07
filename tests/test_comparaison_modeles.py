@@ -22,6 +22,7 @@ Résultats :
 """
 
 import os
+import sqlite3
 import sys
 import time
 import warnings
@@ -30,27 +31,23 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import sqlite3
-
+from openpyxl.formatting.rule import ColorScaleRule
+from openpyxl.utils import get_column_letter
+from rich.console import Console
+from rich.table import Table
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
-from sklearn.calibration import CalibratedClassifierCV
-
-from rich.console import Console
-from rich.table import Table
-
-from openpyxl.formatting.rule import ColorScaleRule
-from openpyxl.utils import get_column_letter
 
 # Permet d'importer utils.py / services.py depuis la racine du projet,
 # même si ce script est lancé depuis le dossier tests/.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utils import BD_ENTRAINEMENT, nettoyer_texte  # noqa: E402
+from utils import BD_ENTRAINEMENT, nettoyer_texte
 
 console = Console()
 

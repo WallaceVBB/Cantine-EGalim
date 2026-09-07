@@ -1,16 +1,19 @@
 # Fichier qui controle le cycle de vie de l'application
 
 ### Bibliothèques
-import sys
 import os
+import sys
+
 from PySide6.QtCore import QObject, QThread
 from PySide6.QtWidgets import QApplication
-from navigation.n_traitement import TraitementNavigation
+
+from maj_logiciel import MajWorker
 from navigation.n_extracteur_factures import FactureNavigation
 from navigation.n_parametres import ParametresNavigation
+from navigation.n_traitement import TraitementNavigation
 from services import DataService
-from utils import console, copier_fichier_ressource_vers_utilisateur,  _est_empaquete
-from maj_logiciel import MajWorker 
+from utils import _est_empaquete, console, copier_fichier_ressource_vers_utilisateur
+
 
 class Application (QObject):
     def __init__(self):
@@ -69,6 +72,7 @@ class Application (QObject):
     def load_gui(self, filename):
         # Création du chargeur Qt
         from PySide6.QtUiTools import QUiLoader
+
         from utils import GUI_DIR
 
         loader = QUiLoader()
@@ -103,21 +107,13 @@ class Application (QObject):
 
     def setup_navigation(self):
         # Connexion des boutons de navigation
-        self.window.b_Accueil.clicked.connect(
-            lambda: self.show_page("accueil")
-        )
+        self.window.b_Accueil.clicked.connect(lambda: self.show_page("accueil"))
 
-        self.window.b_Traiter_fichier.clicked.connect(
-            lambda: self.show_page(self.derniere_page_traitement)
-        )
+        self.window.b_Traiter_fichier.clicked.connect(lambda: self.show_page(self.derniere_page_traitement))
 
-        self.window.b_Convertir_PDF.clicked.connect(
-            lambda: self.show_page(self.derniere_page_convertisseur_pdf)
-        )
+        self.window.b_Convertir_PDF.clicked.connect(lambda: self.show_page(self.derniere_page_convertisseur_pdf))
 
-        self.window.b_Parametres.clicked.connect(
-            lambda: self.show_page("parametres")
-        )
+        self.window.b_Parametres.clicked.connect(lambda: self.show_page("parametres"))
 
     def show_page(self, page_name):
         # Mémorise la dernière sous-page du groupe traitement  
@@ -165,7 +161,6 @@ class Application (QObject):
         MajGestion.appliquer_maj(chemin)
   
     def _proposer_maj_demarrage(self, info):  
-        from maj_logiciel import MajGestion
         from PySide6.QtWidgets import QMessageBox
 
         rep = QMessageBox.question(  

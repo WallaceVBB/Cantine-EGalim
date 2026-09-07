@@ -6,10 +6,11 @@
 ## Bibliothèques
 import os
 import sqlite3
-import pandas as pd
 from types import SimpleNamespace
 
-from utils import console, BD_PT, BD_ENTRAINEMENT, ressource_path
+import pandas as pd
+
+from utils import BD_ENTRAINEMENT, BD_PT, console, ressource_path
 
 # Colonnes de la table produits, dans l'ordre du schéma défini par creer_bd_pt.
 COLONNES_PRODUITS = [
@@ -340,7 +341,7 @@ class DataService:
                 curseur.execute("DELETE FROM produits WHERE texte_brut = ?", (texte_brut,))
             else:
                 continue
-            supprimes += curseur.rowcount if curseur.rowcount > 0 else 0
+            supprimes += max(0, curseur.rowcount)
 
         if commit:
             self.conn.commit()

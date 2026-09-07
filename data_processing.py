@@ -11,7 +11,8 @@ import pandas as pd
 
 from gestion_ml import GestionML
 from services import DataService
-from utils import ressource_path, nettoyer_texte
+from utils import nettoyer_texte, ressource_path
+
 
 # Code
 class ClassificateurProduits:
@@ -119,7 +120,7 @@ class ClassificateurProduits:
         toutes_unites = [unite for sublist in self.unites_poids.values() for unite in sublist]
         unites_regex = '|'.join(re.escape(unite) for unite in toutes_unites)
         self._REGEX_POIDS_UNITES = re.compile(
-            r'(\d+[,.]?\d*)(?:-(\d+[,.]?\d*))?\s?({})(?=\w*\b)'.format(unites_regex), re.IGNORECASE)
+            rf'(\d+[,.]?\d*)(?:-(\d+[,.]?\d*))?\s?({unites_regex})(?=\w*\b)', re.IGNORECASE)
 
     @staticmethod
     def _compiler_regex_dictionnaire(dictionnaire, gabarit):
@@ -304,7 +305,7 @@ class ClassificateurProduits:
         # Reconnaître conditionnements standards
         conditionnements = ['5/5', '5/1', '4/4', '4/1', '3/3', '3/1', '2/1', 'a10']
         for c in conditionnements:
-            pattern = r'(?<![\d,]){}(?![\dkg])'.format(re.escape(c.lower()))
+            pattern = rf'(?<![\d,]){re.escape(c.lower())}(?![\dkg])'
             if re.search(pattern, texte_lower):
                 conditionnement = c
                 break
@@ -618,7 +619,7 @@ class ClassificateurProduits:
 
         except Exception as e:
             if progress_callback:
-                progress_callback(100, f"Erreur: {str(e)}")
+                progress_callback(100, f"Erreur: {e!s}")
             raise
 
     def _precharger_predictions(self, produits, has_code_produit, predictions_texte_propre):

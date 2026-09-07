@@ -1,11 +1,13 @@
 #Ce fichier gére la navigation de la page de paramètres (Parametres.ui) de l'application
 
-import os  
-from pathlib import Path  
-from PySide6.QtCore import QThread, Signal, QObject, Slot, Qt  
-from PySide6.QtWidgets import QMessageBox, QProgressDialog, QFileDialog  
+import os
+from pathlib import Path
 
-from utils import console,_est_empaquete
+from PySide6.QtCore import QObject, Qt, QThread, Signal, Slot
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+
+from utils import _est_empaquete, console
+
 
 class TraitementModelesWorker(QThread):
     """Réalise la création des modèles ML hors du thread UI."""
@@ -55,7 +57,7 @@ class TraitementModelesWorker(QThread):
 
         except Exception as exc:
             console.print(f"[red]Erreur lors de la récréation des modèles : {exc}")
-            self.finished.emit(False, f"Erreur lors de la récréation des modèles : {str(exc)}")
+            self.finished.emit(False, f"Erreur lors de la récréation des modèles : {exc!s}")
 
     def _on_progress(self, pourcentage, message):
         """Callback de progression appelé par GestionML."""
@@ -263,7 +265,7 @@ class ParametresNavigation(QObject):
                 QMessageBox.critical (
                     self.page,
                     "Erreur",
-                    f"Erreur lors de la récréation de la Base d'entraînement : {str(e)}"
+                    f"Erreur lors de la récréation de la Base d'entraînement : {e!s}"
                 )
 
     def on_recreer_bd_pt (self):
@@ -290,7 +292,7 @@ class ParametresNavigation(QObject):
                     QMessageBox.critical (
                         self.page,
                         "Erreur",
-                        f"Erreur lors de la récréation de la Base de produits traités : {str(e)}"
+                        f"Erreur lors de la récréation de la Base de produits traités : {e!s}"
                     )
 
     def on_maj_bd_entrainement (self):
@@ -308,7 +310,7 @@ class ParametresNavigation(QObject):
                         QMessageBox.critical (
                             self.page,
                             "Erreur",
-                            f"Erreur lors de la mise à jour de la Base d'entraînement : {str(e)}"
+                            f"Erreur lors de la mise à jour de la Base d'entraînement : {e!s}"
                         )
 
     def on_supprimer_donnees_utilisateur (self):

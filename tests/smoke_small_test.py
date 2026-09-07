@@ -12,7 +12,6 @@ Utilisation : python tests/smoke_test.py
 """
 
 import os
-import platform
 import shutil
 import sys
 import tempfile
@@ -28,16 +27,16 @@ if RACINE_PROJET not in sys.path:
 REPERTOIRE_TEMPORAIRE = tempfile.mkdtemp(prefix="epidata_smoke_")
 os.environ["EPIDATA_USER_DIR"] = REPERTOIRE_TEMPORAIRE
 
-import joblib  # noqa: E402
-from sklearn.feature_extraction.text import TfidfVectorizer  # noqa: E402
+import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-import data_processing  # noqa: E402
-import gestion_ml  # noqa: E402
-import services  # noqa: E402
-import utils  # noqa: E402
-import maj_logiciel  # noqa: E402
-from gestion_ml import GestionML  # noqa: E402
-from maj_logiciel import MajGestion, MajWorker  # noqa: E402
+import data_processing
+import gestion_ml
+import maj_logiciel
+import services
+import utils
+from gestion_ml import GestionML
+from maj_logiciel import MajGestion, MajWorker
 
 ENTRAINEMENTS_DETECTES = []
 
@@ -70,8 +69,8 @@ def test_imports():
     etape(1, "Import des modules refactorés")
     import app
     import main
-    import navigation.n_traitement
     import navigation.n_extracteur_factures as n_extracteur
+    import navigation.n_traitement
     from extracteur_facture import extracteur_generique, extracteur_jardimed
 
     for module in (app, main, navigation.n_traitement, n_extracteur, extracteur_generique, extracteur_jardimed):

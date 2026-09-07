@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 import re
-
 from dataclasses import dataclass
 from pathlib import Path
 from statistics import median
-from typing import Optional
 
 import pandas as pd
-
-from utils import TESSERACT_EXE, TESSDATA_DIR
 import pytesseract
 
+from utils import TESSDATA_DIR, TESSERACT_EXE
 
 # --- Paramètres OCR ---------------------------------------------------------
 
@@ -95,7 +92,7 @@ UNIT_WORDS = {
 
 _NUM_RE = re.compile(r"^[+-]?(?:\d+(?:[\.,]\d+)?|\d{1,3}(?:[ .]\d{3})+(?:[\.,]\d+)?)$")
 _PERCENT_RE = re.compile(r"^[+-]?\d+(?:[\.,]\d+)?\s*%$")
-_PRICE_RE = re.compile(r"^[+-]?(?:\d+(?:[\.,]\d+)?|\d{1,3}(?:[ .]\d{3})+(?:[\.,]\d+)?)[ ]*€?$", re.I)
+_PRICE_RE = re.compile(r"^[+-]?(?:\d+(?:[\.,]\d+)?|\d{1,3}(?:[ .]\d{3})+(?:[\.,]\d+)?)[ ]*€?$", re.IGNORECASE)
 
 def normalize_text(value: str) -> str:
     s = str(value or "")
@@ -127,7 +124,7 @@ def is_percent(value: str) -> bool:
     return bool(_PERCENT_RE.fullmatch(normalize_text(value)))
 
 
-def is_plausible_price(w: "Word") -> bool:
+def is_plausible_price(w: Word) -> bool:
     """Comme `is_price`, mais plus strict pour les mots issus de l'OCR.
 
     Sur des scans bruités, une ligne de tableau ou une tache peut être lue
@@ -222,11 +219,11 @@ class ColumnModel:
     designation_start: float
     designation_end: float
     quantity_x: float
-    unit_x: Optional[float]
-    unit_secondary_x: Optional[float]
-    unit_price_x: Optional[float]
-    vat_x: Optional[float]
-    amount_x: Optional[float]
+    unit_x: float | None
+    unit_secondary_x: float | None
+    unit_price_x: float | None
+    vat_x: float | None
+    amount_x: float | None
 
 
 def render_page_image(page, dpi: int = OCR_DPI):
@@ -247,7 +244,8 @@ def render_page_image(page, dpi: int = OCR_DPI):
         return cache["image"]
     image = page.to_image(resolution=dpi).original
     try:
-        from PIL import Image as PILImage, ImageOps, ImageFilter
+        from PIL import Image as PILImage
+        from PIL import ImageFilter, ImageOps
         gray = image.convert("L")
         w, h = gray.size
         gray = gray.resize((w * 2, h * 2), PILImage.LANCZOS)
@@ -404,7 +402,7 @@ def header_hit_count(line: Line) -> dict[str, list[Word]]:
     return found
 
 
-def find_header(lines: list[Line], page_width: float) -> Optional[tuple[int, int, ColumnModel]]:
+def find_header(lines: list[Line], page_width: float) -> tuple[int, int, ColumnModel] | None:
     candidates = []
     for i, line in enumerate(lines):
         # Un header peut s'étendre sur 3 lignes maximum.
@@ -531,7 +529,7 @@ def invoice_date(text: str, page=None) -> str:
                 ]
                 line_chars.sort(key=lambda c: float(c["x0"]))
                 candidate = "".join(str(c.get("text", "")) for c in line_chars)
-                m = re.search(r"\b(?:du|le)\s*(\d{2}[./-]\d{2}[./-]\d{4})\b", candidate, re.I)
+                m = re.search(r"\b(?:du|le)\s*(\d{2}[./-]\d{2}[./-]\d{4})\b", candidate, re.IGNORECASE)
                 if m:
                     return fmt(m.group(1))
         except Exception:
@@ -540,7 +538,7 @@ def invoice_date(text: str, page=None) -> str:
     return ""
 
 
-def nearest_x(target: float, values: list[float]) -> Optional[float]:
+def nearest_x(target: float, values: list[float]) -> float | None:
     if not values:
         return None
     return min(values, key=lambda x: abs(x - target))
@@ -635,7 +633,7 @@ def infer_columns(lines: list[Line], start: int, model: ColumnModel) -> ColumnMo
                 uxs.append(w.xmid)
                 break
             # Certaines factures ont une unité collée : 12kg / 12p.
-            m = re.fullmatch(r"\d+(?:[\.,]\d+)?(kg|g|l|p|pc|pcs)", token_key(w.text), re.I)
+            m = re.fullmatch(r"\d+(?:[\.,]\d+)?(kg|g|l|p|pc|pcs)", token_key(w.text), re.IGNORECASE)
             if m:
                 uxs.append(w.xmid)
                 break
@@ -650,7 +648,7 @@ def infer_columns(lines: list[Line], start: int, model: ColumnModel) -> ColumnMo
     return model
 
 
-def nearest_word(words: list[Word], x: float, numeric: bool = False) -> Optional[Word]:
+def nearest_word(words: list[Word], x: float, numeric: bool = False) -> Word | None:
     candidates = []
     for w in words:
         if numeric and not (is_number(w.text) or is_price(w.text)):
@@ -663,15 +661,15 @@ def _is_quantity_candidate(w: Word) -> bool:
     return is_number(w.text) or is_price(w.text)
 
 
-def _compact_unit_parts(text: str) -> Optional[list[str]]:
+def _compact_unit_parts(text: str) -> list[str] | None:
     t = token_key(text)
-    m = re.fullmatch(r"(\d+(?:[\.,]\d+)?)(kg|g|mg|l|cl|ml|dl|hl|p|pc|pcs|pu|u|un|col|colis|carton|cartons|sac|sacs|caisse|caisses|botte|barquette|bac|flt|plateau|pot|pots)", t, re.I)
+    m = re.fullmatch(r"(\d+(?:[\.,]\d+)?)(kg|g|mg|l|cl|ml|dl|hl|p|pc|pcs|pu|u|un|col|colis|carton|cartons|sac|sacs|caisse|caisses|botte|barquette|bac|flt|plateau|pot|pots)", t, re.IGNORECASE)
     if m:
         return [m.group(1), m.group(2)]
     return None
 
 
-def parse_product_line(line: Line, model: ColumnModel) -> Optional[dict[str, str]]:
+def parse_product_line(line: Line, model: ColumnModel) -> dict[str, str] | None:
     ws = sorted(line.words, key=lambda w: w.x0)
     text = line.text
     if not text or is_summary(text) or is_non_product(text):
@@ -909,9 +907,9 @@ def extraire_facture_pdf(chemin_pdf: str | Path, chemin_sortie_excel: str | Path
                         break
                     candidate_text = page_texts[idx]
                     d = invoice_date(candidate_text)
-                    if d and re.search(r"date\s+base", normalize_key(candidate_text), re.I):
+                    if d and re.search(r"date\s+base", normalize_key(candidate_text), re.IGNORECASE):
                         break
-                    if re.search(r"total\s+(?:ht|ttc)|net\s+à\s+payer|net\s+a\s+payer", normalize_key(candidate_text), re.I):
+                    if re.search(r"total\s+(?:ht|ttc)|net\s+à\s+payer|net\s+a\s+payer", normalize_key(candidate_text), re.IGNORECASE):
                         # Cette page ressemble déjà à une page récapitulative ; inutile
                         # de continuer à chercher plus loin pour cette facture.
                         if d:

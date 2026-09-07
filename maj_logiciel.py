@@ -1,12 +1,13 @@
 # Ce fichier va gérer le lancement de la mise à jour du logiciel
 
-import os   
-import platform  
-import subprocess  
+import os
+import platform
+import subprocess
+
 from PySide6.QtCore import QObject
-  
-from utils import VERSION, USER_APP_DIR, console  
-  
+
+from utils import USER_APP_DIR, VERSION, console
+
 REPO = "WallaceVBB/EpiData"  
 API_LATEST = f"https://api.github.com/repos/{REPO}/releases/latest"  
 
@@ -59,7 +60,7 @@ class MajWorker(QObject):
         """Thread-safe : simple flag lu par le thread worker entre deux chunks."""
         self._is_cancelled = True
 
-class MajGestion ():
+class MajGestion :
     @staticmethod
     def _extension_asset_attendue():  
         """Extension de l'asset selon l'OS courant."""  
@@ -71,8 +72,8 @@ class MajGestion ():
     def verifier_maj():  
         """Interroge GitHub. Retourne un dict si une MAJ existe, sinon None.  
         Lève une exception en cas d'erreur réseau."""
+        import requests
         from packaging import version
-        import requests  
 
         reponse = requests.get(API_LATEST, timeout=10)  
         reponse.raise_for_status()  
@@ -121,6 +122,7 @@ class MajGestion ():
     def appliquer_maj(chemin_installeur):
         """Lance l'installeur/AppImage puis ferme proprement l'application."""
         import sys
+
         from PySide6.QtWidgets import QApplication
 
         systeme = platform.system()

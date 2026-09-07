@@ -33,7 +33,7 @@ class GestionML:
 
     def __init__(self, bd_entrainement_path=None, modeles_dir=None, data_service=None):
         """Initialise la gestion ML sans déclencher d'entraînement ni d'accès disque lourd."""
-        from utils import console, BD_ENTRAINEMENT, MODELES_DIR
+        from utils import BD_ENTRAINEMENT, MODELES_DIR
 
         self.bd_entrainement_path = bd_entrainement_path or BD_ENTRAINEMENT
         self.modeles_dir = modeles_dir or MODELES_DIR

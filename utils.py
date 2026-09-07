@@ -4,10 +4,11 @@
 
 ### Bibliothèque
 import os
+import platform
 import re
 import shutil
 import sys
-import platform
+
 from rich.console import Console
 
 ## Préparation du Console pour faciliter debug

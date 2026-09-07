@@ -64,9 +64,8 @@ sys.path.insert(
     )
 )
 
-from utils import nettoyer_texte  # noqa: E402
-from gestion_ml import GestionML  # noqa: E402
-
+from gestion_ml import GestionML
+from utils import nettoyer_texte
 
 console = Console()
 

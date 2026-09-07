@@ -80,12 +80,12 @@ else:
     REPERTOIRE_DONNEES = REPERTOIRE_TEMPORAIRE
 os.environ["EPIDATA_USER_DIR"] = REPERTOIRE_DONNEES
 
-import pandas as pd  # noqa: E402
+import pandas as pd
 
-import utils  # noqa: E402
-from data_processing import ClassificateurProduits  # noqa: E402
-from gestion_ml import GestionML  # noqa: E402
-from services import DataService  # noqa: E402
+import utils
+from data_processing import ClassificateurProduits
+from gestion_ml import GestionML
+from services import DataService
 
 DESIGNATIONS_SECOURS = [
     "TOMATE GRAPPE FRANCE CAT1 5KG",
