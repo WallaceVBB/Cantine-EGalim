@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
-    <height>475</height>
+    <width>652</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,7 +33,10 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Bienvenue sur EpiData&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;EpiData simplifie le traitement et l’analyse de vos données d’achats alimentaires.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Importez vos factures, structurez automatiquement les données et enrichissez les informations sur les produits grâce aux outils de traitement automatique.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;📄 &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Convertir&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; vos factures PDF en données structurées&lt;br/&gt;🔎 &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Classifier&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; et enrichir automatiquement les produits&lt;br/&gt;📊 &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Préparer&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; vos données pour l’analyse et le reporting&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Gagnez du temps et transformez vos données d’achats en informations exploitables.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt; font-weight:700;&quot;&gt;Bienvenue sur EpiData&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;EpiData simplifie le traitement et l’analyse de vos données d’achats alimentaires.&lt;/span&gt;&lt;/p&gt;🔎 &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Classifier&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; et enrichir automatiquement les produits&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;📄 &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Convertir&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; vos factures PDF en données structurées&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Gagnez du temps et transformez vos données d’achats en informations exploitables.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
