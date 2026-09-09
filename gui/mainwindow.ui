@@ -90,13 +90,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="b_Parametres">
-        <property name="text">
-         <string>Paramètres</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -145,8 +138,24 @@
      <height>27</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+     <pointsize>12</pointsize>
+     <italic>false</italic>
+     <bold>false</bold>
+     <underline>false</underline>
+     <kerning>true</kerning>
+    </font>
+   </property>
    <property name="autoFillBackground">
     <bool>false</bool>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
    </property>
    <widget class="QMenu" name="menuSavoir_plus">
     <property name="title">
@@ -159,7 +168,7 @@
     <property name="title">
      <string>Paramètres</string>
     </property>
-    <addaction name="actionParam_tres_anvac_s"/>
+    <addaction name="actionParametres_avances"/>
     <addaction name="actionMettre_jour"/>
    </widget>
    <addaction name="menuParam_tres"/>
@@ -186,9 +195,9 @@
     <string>Paramètres</string>
    </property>
   </action>
-  <action name="actionParam_tres_anvac_s">
+  <action name="actionParametres_avances">
    <property name="text">
-    <string>Paramètres anvacés</string>
+    <string>Paramètres avancés</string>
    </property>
   </action>
   <action name="actionMettre_jour">

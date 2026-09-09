@@ -112,19 +112,27 @@ class ExportBdPtWorker(QThread):
 class ParametresNavigation(QObject):
     """Navigation et actions de la page de paramètres du logiciel."""
 
-    demande_telechargement = Signal(dict) # signal qui déclenchera telecharger() dans le worker  
-
-    def __init__(self, page_widget, show_page_callback, pages, data_service):
+    def __init__(self, data_service, load_gui):
         super().__init__()
-        self.page = page_widget
-        self.pages = pages
-        self.show_page = show_page_callback
         self.data_service = data_service
+        self.load_gui = load_gui
         self._export_worker = None
         self._export_progress = None
+        # La fenêtre est chargée une seule fois puis réutilisée
+        self.fenetre = None
 
+    def _configurer_parametres(self, fenetre):
+        self.page = fenetre  # garde le même nom que dans le reste du fichier
         self._connect_buttons()
 
+    def ouvrir_parametres(self):
+            if self.fenetre is None:
+                self.fenetre = self.load_gui("Parametres.ui")
+                self._configurer_parametres(self.fenetre)
+    
+            self.fenetre.show()
+            self.fenetre.raise_()
+            self.fenetre.activateWindow()
 
     def _connect_buttons(self):
         self.page.b_Recreer_Modeles.clicked.connect(
@@ -145,10 +153,6 @@ class ParametresNavigation(QObject):
 
         self.page.b_Supprimer_Donnees_Utilisateur.clicked.connect(
             self.on_supprimer_donnees_utilisateur
-        )
-
-        self.page.b_MAJ_Logiciel.clicked.connect(
-            self.on_maj_logiciel
         )
 
         self.page.b_Telecharger_BD_PT.clicked.connect(
@@ -320,46 +324,6 @@ class ParametresNavigation(QObject):
             "Cette fonction n'est pas encore mise en place."
         )
 
-    def on_maj_logiciel(self):
-        from maj_logiciel import MajWorker
-
-        if not _est_empaquete():
-            QMessageBox.information(
-                self.page, "Mise à jour",
-                "La mise à jour n'est disponible que dans la version installée du logiciel."
-            )
-            return
-
-        self._thread = QThread()
-        self._worker = MajWorker()
-        self._worker.moveToThread(self._thread)
-        self._thread.started.connect(self._worker.verifier)
-
-        self._worker.aucune_maj.connect(self._on_aucune_maj)
-        self._worker.maj_disponible.connect(self._demander_telechargement)
-        self._worker.erreur.connect(self._on_maj_erreur)
-        self._worker.annule.connect(self._on_download_annule_confirme)
-
-        self.demande_telechargement.connect(self._worker.telecharger)
-        self._worker.termine_download.connect(self._on_download_fini)
-
-        self._thread.start()
-
-        self._worker.aucune_maj.connect(self._thread.quit)
-        self._worker.erreur.connect(self._thread.quit)
-        self._worker.termine_download.connect(self._thread.quit)
-        self._worker.annule.connect(self._thread.quit)
-        self._thread.finished.connect(self._thread.deleteLater)
-        self._thread.finished.connect(self._worker.deleteLater)
-
-    @Slot()
-    def _on_aucune_maj(self):
-        QMessageBox.information(self.page, "Mise à jour", "EpiData est déjà à jour.")
-
-    @Slot(str)
-    def _on_maj_erreur(self, msg):
-        QMessageBox.warning(self.page, "Mise à jour", f"Vérification impossible : {msg}")  
-
     def on_telecharger_bd_pt (self):
                 bd_pt=self.data_service.bd_pt
                 if  not os.path.exists (bd_pt) :
@@ -458,61 +422,3 @@ class ParametresNavigation(QObject):
                         QMessageBox.information(self.page, "Export Excel", "Fichier Excel enregistré avec succès.")
                     except Exception as exc:
                         QMessageBox.critical(self.page, "Erreur", f"Impossible d'enregistrer le fichier Excel : {exc}")
-  
-    def _demander_telechargement(self, info):
-        rep = QMessageBox.question(
-            self.page, "Mise à jour disponible",
-            f"Version {info['version']} disponible. Télécharger et installer ?",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-        if rep != QMessageBox.Yes:
-            self._thread.quit()
-            return
-
-        self._progress = QProgressDialog("Téléchargement...", "Annuler", 0, 100, self.page)
-        self._progress.setWindowTitle("Téléchargement de la mise à jour")
-        self._progress.setWindowModality(Qt.WindowModal)
-        self._progress.setMinimumDuration(0)
-        self._progress.setValue(0)
-        self._progress.show()
-
-        self._worker.progression.connect(self._progress.setValue)
-        self._progress.canceled.connect(self._on_download_annule)
-
-        self.demande_telechargement.emit(info)
-
-    @Slot(str)
-    def _on_download_fini(self, chemin):
-        if getattr(self, '_progress', None) is not None:
-            self._progress.close()
-            self._progress.deleteLater()
-            self._progress = None
-
-        try:
-            from maj_logiciel import MajGestion
-            MajGestion.appliquer_maj(chemin)
-        except Exception as e:
-            QMessageBox.critical(self.page, "Erreur", f"Impossible de lancer la mise à jour : {e}")
-
-    @Slot()
-    def _on_download_annule(self):
-        """Appelé quand l'utilisateur clique sur 'Annuler' dans la barre de progression."""
-        if getattr(self, '_worker', None) is not None:
-            self._worker.demander_annulation()
-        if getattr(self, '_progress', None) is not None:
-            self._progress.setLabelText("Annulation en cours...")
-            # Empêche un nouveau "canceled" pendant qu'on attend la confirmation du worker
-            self._progress.setCancelButton(None)
-
-    @Slot()
-    def _on_download_annule_confirme(self):
-        """Appelé quand le worker confirme que le téléchargement a bien été arrêté."""
-        if getattr(self, '_progress', None) is not None:
-            self._progress.close()
-            self._progress.deleteLater()
-            self._progress = None
-
-        QMessageBox.information(
-            self.page, "Téléchargement annulé",
-            "Le téléchargement de la mise à jour a été annulé."
-        )

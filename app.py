@@ -13,6 +13,7 @@ from navigation.n_parametres import ParametresNavigation
 from navigation.n_traitement import TraitementNavigation
 from navigation.n_credits import CreditsNavigation
 from navigation.n_a_propos import ProposNavigation
+from navigation.n_maj import MajNavigation
 from services import DataService
 from utils import _est_empaquete, console, copier_fichier_ressource_vers_utilisateur
 
@@ -40,6 +41,10 @@ class Application (QObject):
         # Dernière sous-page du groupe convertisseur facture pdf
         self.derniere_page_convertisseur_pdf = "convertir_pdf"
 
+        self.parametres_navigation = ParametresNavigation(data_service=self.data_service,load_gui=self.load_gui)
+
+        self.maj_navigation = MajNavigation(parent_widget=self.window)
+
         self.credits_navigation = CreditsNavigation(load_gui=self.load_gui)
 
         self.propos_navigation = ProposNavigation(load_gui=self.load_gui)
@@ -56,12 +61,6 @@ class Application (QObject):
         )
         self.facture_navigation = FactureNavigation(
             self.pages["convertir_pdf"],
-            self.show_page,
-            self.pages,
-            data_service=self.data_service
-        )
-        self.parametres_navigation = ParametresNavigation(
-            self.pages["parametres"],
             self.show_page,
             self.pages,
             data_service=self.data_service
@@ -119,7 +118,9 @@ class Application (QObject):
 
         self.window.b_Convertir_PDF.clicked.connect(lambda: self.show_page(self.derniere_page_convertisseur_pdf))
 
-        self.window.b_Parametres.clicked.connect(lambda: self.show_page("parametres"))
+        self.window.actionParametres_avances.triggered.connect(self.parametres_navigation.ouvrir_parametres)
+
+        self.window.actionMettre_jour.triggered.connect(self.maj_navigation.on_maj_logiciel)
 
         self.window.actionCr_dits.triggered.connect(self.credits_navigation.ouvrir_credits)
 
@@ -138,6 +139,9 @@ class Application (QObject):
     
         # Affichage de la page  
         self.window.stackedWidget.setCurrentWidget(page)
+
+    def ouvrir_parametres(self):
+        self.show_page("parametres")
 
     def ouvrir_credits(self):
         self.show_page("credits")
