@@ -83,6 +83,8 @@ FICHIERS_RESSOURCES = [
     ("Traitement_chargement.ui", "gui"),
     ("Traitement_resultats.ui", "gui"),
     ("Traitement_selecteur.ui", "gui"),
+    ("Credits.ui", "gui"),
+    ("A_propos.ui", "gui")
 ]
 
 # Créer les répertoires nécessaires si ils n'existent pas

@@ -14,17 +14,27 @@ class MajNavigation(QObject):
         super().__init__()
         # Widget parent utilisé pour les QMessageBox / QProgressDialog
         self._parent_widget = parent_widget
+        self._au_demarrage = False
+        self._mise_a_jour_en_cours = False
+        self._chemin_installateur = None
 
-    def on_maj_logiciel(self):
+    def on_maj_logiciel(self, au_demarrage=False):
         from maj_logiciel import MajWorker
 
+        if self._mise_a_jour_en_cours:
+            return
+
         if not _est_empaquete():
+            if au_demarrage:
+                return
             QMessageBox.information(
                 self._parent_widget, "Mise à jour",
                 "La mise à jour n'est disponible que dans la version installée du logiciel."
             )
             return
 
+        self._au_demarrage = au_demarrage
+        self._mise_a_jour_en_cours = True
         self._thread = QThread()
         self._worker = MajWorker()
         self._worker.moveToThread(self._thread)
@@ -37,28 +47,36 @@ class MajNavigation(QObject):
 
         self.demande_telechargement.connect(self._worker.telecharger)
         self._worker.termine_download.connect(self._on_download_fini)
-
-        self._thread.start()
+        self._thread.finished.connect(self._on_thread_fini)
 
         self._worker.aucune_maj.connect(self._thread.quit)
         self._worker.erreur.connect(self._thread.quit)
-        self._worker.termine_download.connect(self._thread.quit)
         self._worker.annule.connect(self._thread.quit)
-        self._thread.finished.connect(self._thread.deleteLater)
+        self._worker.termine_download.connect(self._thread.quit)
         self._thread.finished.connect(self._worker.deleteLater)
+        self._thread.finished.connect(self._thread.deleteLater)
+
+        self._thread.start()
 
     @Slot()
     def _on_aucune_maj(self):
+        if self._au_demarrage:
+            console.log("À jour")
+            return
         QMessageBox.information(self._parent_widget, "Mise à jour", "EpiData est déjà à jour.")
 
     @Slot(str)
     def _on_maj_erreur(self, msg):
+        self._fermer_progression()
+        if self._au_demarrage:
+            console.log(f"MAJ ignorée: {msg}")
+            return
         QMessageBox.warning(self._parent_widget, "Mise à jour", f"Vérification impossible : {msg}")
 
     def _demander_telechargement(self, info):
         rep = QMessageBox.question(
             self._parent_widget, "Mise à jour disponible",
-            f"Version {info['version']} disponible. Télécharger et installer ?",
+            f"La version {info['version']} est disponible. Télécharger et installer ?",
             QMessageBox.Yes | QMessageBox.No,
         )
         if rep != QMessageBox.Yes:
@@ -79,16 +97,29 @@ class MajNavigation(QObject):
 
     @Slot(str)
     def _on_download_fini(self, chemin):
+        self._fermer_progression()
+        self._chemin_installateur = chemin
+
+    @Slot()
+    def _on_thread_fini(self):
+        chemin_installateur = self._chemin_installateur
+        self._chemin_installateur = None
+        self._mise_a_jour_en_cours = False
+        self._au_demarrage = False
+
+        if chemin_installateur is None:
+            return
+        try:
+            from maj_logiciel import MajGestion
+            MajGestion.appliquer_maj(chemin_installateur)
+        except Exception as e:
+            QMessageBox.critical(self._parent_widget, "Erreur", f"Impossible de lancer la mise à jour : {e}")
+
+    def _fermer_progression(self):
         if getattr(self, '_progress', None) is not None:
             self._progress.close()
             self._progress.deleteLater()
             self._progress = None
-
-        try:
-            from maj_logiciel import MajGestion
-            MajGestion.appliquer_maj(chemin)
-        except Exception as e:
-            QMessageBox.critical(self._parent_widget, "Erreur", f"Impossible de lancer la mise à jour : {e}")
 
     @Slot()
     def _on_download_annule(self):
@@ -102,10 +133,7 @@ class MajNavigation(QObject):
     @Slot()
     def _on_download_annule_confirme(self):
         """Appelé quand le worker confirme que le téléchargement a bien été arrêté."""
-        if getattr(self, '_progress', None) is not None:
-            self._progress.close()
-            self._progress.deleteLater()
-            self._progress = None
+        self._fermer_progression()
 
         QMessageBox.information(
             self._parent_widget, "Téléchargement annulé",
