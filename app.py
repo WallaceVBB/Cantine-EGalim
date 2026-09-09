@@ -11,6 +11,8 @@ from maj_logiciel import MajWorker
 from navigation.n_extracteur_factures import FactureNavigation
 from navigation.n_parametres import ParametresNavigation
 from navigation.n_traitement import TraitementNavigation
+from navigation.n_credits import CreditsNavigation
+from navigation.n_a_propos import ProposNavigation
 from services import DataService
 from utils import _est_empaquete, console, copier_fichier_ressource_vers_utilisateur
 
@@ -37,6 +39,10 @@ class Application (QObject):
 
         # Dernière sous-page du groupe convertisseur facture pdf
         self.derniere_page_convertisseur_pdf = "convertir_pdf"
+
+        self.credits_navigation = CreditsNavigation(load_gui=self.load_gui)
+
+        self.propos_navigation = ProposNavigation(load_gui=self.load_gui)
 
         # Chargement des pages
         self.load_pages()
@@ -115,6 +121,10 @@ class Application (QObject):
 
         self.window.b_Parametres.clicked.connect(lambda: self.show_page("parametres"))
 
+        self.window.actionCr_dits.triggered.connect(self.credits_navigation.ouvrir_credits)
+
+        self.window.actionA_propos.triggered.connect(self.propos_navigation.ouvrir_propos)
+
     def show_page(self, page_name):
         # Mémorise la dernière sous-page du groupe traitement  
         if page_name in ("traitement_produits", "traitement_chargement", "traitement_resultats"):  
@@ -128,6 +138,12 @@ class Application (QObject):
     
         # Affichage de la page  
         self.window.stackedWidget.setCurrentWidget(page)
+
+    def ouvrir_credits(self):
+        self.show_page("credits")
+
+    def ouvrir_propos(self):
+        self.show_page("Propos")
 
     def _verifier_maj_au_demarrage(self):  
         # Ne rien faire en développement (sys.executable = python)  

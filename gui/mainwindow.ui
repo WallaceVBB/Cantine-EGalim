@@ -148,7 +148,54 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
+   <widget class="QMenu" name="menuSavoir_plus">
+    <property name="title">
+     <string>Aide</string>
+    </property>
+    <addaction name="actionA_propos"/>
+    <addaction name="actionCr_dits"/>
+   </widget>
+   <widget class="QMenu" name="menuParam_tres">
+    <property name="title">
+     <string>Paramètres</string>
+    </property>
+    <addaction name="actionParam_tres_anvac_s"/>
+    <addaction name="actionMettre_jour"/>
+   </widget>
+   <addaction name="menuParam_tres"/>
+   <addaction name="menuSavoir_plus"/>
   </widget>
+  <action name="actionCr_dits">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Crédits</string>
+   </property>
+  </action>
+  <action name="actionA_propos">
+   <property name="text">
+    <string>A propos</string>
+   </property>
+  </action>
+  <action name="actionParam_tres">
+   <property name="text">
+    <string>Paramètres</string>
+   </property>
+  </action>
+  <action name="actionParam_tres_anvac_s">
+   <property name="text">
+    <string>Paramètres anvacés</string>
+   </property>
+  </action>
+  <action name="actionMettre_jour">
+   <property name="text">
+    <string>Mettre à jour</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
