@@ -1,5 +1,7 @@
-# Ce fichier fait le lien entre l'interface graphique et le traitement des factures PDF.
-# Il est utilisé pour lancer le traitement des factures à partir de l'interface graphique.
+"""Explicaction du fichier :
+Ce fichier fait le lien entre l'interface graphique et le traitement des factures PDF.
+Il est utilisé pour lancer le traitement des factures à partir de l'interface graphique.
+"""
 
 import os
 from pathlib import Path

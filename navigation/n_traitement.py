@@ -1,5 +1,7 @@
-﻿# Ce fichier fait le lien entre la GUI et le traitement des produits.
-# Il contient les fonctions appelées par les boutons de la GUI pour lancer le traitement.
+﻿""" Explication du fichier :
+Ce fichier fait le lien entre la GUI et le traitement des produits.
+Il contient les fonctions appelées par les boutons de la GUI pour lancer le traitement.
+"""
 
 from pathlib import Path
 

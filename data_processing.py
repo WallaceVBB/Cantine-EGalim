@@ -1,7 +1,8 @@
 ## Explication du fichier
-# Ce ficher fait le traitement des données importer (fichier CSV à traiter)
-# Couche de traitement : elle orchestre la couche ML (gestion_ml.py) et la couche
-# de persistance (services.py). Elle ne contient ni SQL brut ni code d'interface graphique.
+"""Ce ficher fait le traitement des données importer (fichier CSV à traiter)
+Couche de traitement : elle orchestre la couche ML (gestion_ml.py) et la couche
+de persistance (services.py). Elle ne contient ni SQL brut ni code d'interface graphique.
+"""
 
 ## Bibliothèques
 import os

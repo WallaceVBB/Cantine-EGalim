@@ -1,8 +1,8 @@
-### Explications du fichier
-# Ce fichier réalise la gestion des modèles de machine learning (création, chargement, remplacement et inférence).
-# Il constitue la couche ML : elle est appelée par la couche de traitement (data_processing.py)
-# et s'appuie sur la couche de persistance (services.py) pour la base d'entraînement.
-
+"""Explications du fichier :
+fichier réalise la gestion des modèles de machine learning (création, chargement, remplacement et inférence).
+Il constitue la couche ML : elle est appelée par la couche de traitement (data_processing.py)
+et s'appuie sur la couche de persistance (services.py) pour la base d'entraînement.
+"""
 
 ### bibliothèques
 import os

@@ -1,7 +1,8 @@
-﻿## Explication fichier :
-# Ce fichier fait la gestion des services de l'application,
-# incluant la connexion à la base de données et le chargement des CSV nécessaires pour le traitement des produits alimentaires.
-# Il contient également les fonctions pour initialiser les bases de données et charger les modèles de machine learning.
+﻿"""Explication fichier :
+Ce fichier fait la gestion des services de l'application,
+incluant la connexion à la base de données et le chargement des CSV nécessaires pour le traitement des produits alimentaires.
+Il contient également les fonctions pour initialiser les bases de données et charger les modèles de machine learning.
+"""
 
 ## Bibliothèques
 import os

@@ -1,6 +1,7 @@
-### Explications du fichier
-# Ce fichier gère les chemins et répertoires utilisés par l'application,
-# ainsi que quelques utilitaires texte partagés par les autres couches.
+"""Explications du fichier
+Ce fichier gère les chemins et répertoires utilisés par l'application,
+ainsi que quelques utilitaires texte partagés par les autres couches.
+"""
 
 ### Bibliothèque
 import os
@@ -37,7 +38,7 @@ def _repertoire_donnees_utilisateur():
 
 def _determiner_user_app_dir():
     """Détermine le répertoire de l'application :
-    - variable d'environnement si elle est définie (tests, déploiements particuliers) ;
+    - variable d'environnement si elle est définie (développement, empaqueté) ;
     - répertoire de données de l'utilisateur quand l'application est empaquetée ;
     - répertoire du projet en développement.
     """
@@ -61,8 +62,8 @@ NAVIGATION_DIR = os.path.join(USER_APP_DIR, "navigation") # sous-dossier pour le
 BD_DIR = os.path.join(USER_APP_DIR, "bases_de_donnees") # sous-dossier pour les bases de données
 BD_ENTRAINEMENT = os.path.join(BD_DIR, "bd_entrainement.db") # chemin vers la base de données d'entrainement
 BD_PT = os.path.join(BD_DIR, "bd_pt.db") # chemin vers la base de données des produits traités
-TESSERACT_EXE = os.path.join("tesseract", "tesseract.exe")
-TESSDATA_DIR = os.path.join("tesseract", "tessdata")
+TESSERACT_EXE = os.path.join("tesseract", "tesseract.exe") # chemin pour .exe du logiciel Tesseract de lecture PDF OCR
+TESSDATA_DIR = os.path.join("tesseract", "tessdata") # chemin pour fichiers autres importants pour le logiciel Tesseract
 
 # Fichiers de ressources copiés vers le dossier utilisateur au premier lancement
 FICHIERS_RESSOURCES = [
